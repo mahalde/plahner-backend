@@ -16,7 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return a welcome message', () => {
-      const expectedMessage = 'Hello from the Plahner Backend!';
+      const expectedMessage = 'Hello from the Plahner Backend in test mode!';
       expect(appController.getHello()).toBe(expectedMessage);
     });
   });
