@@ -11,6 +11,6 @@ assignees: mahalde
 ## **Business Value**
 
 <!-- List all acceptance criteria which would fulfill your feature request -->
-## **Acceptance Critera**
+## **Acceptance Criteria**
 - [ ] Criteria 1
 - [ ] Criteria 2
