@@ -5,6 +5,9 @@
   "author": "mahalde",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=12.18"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
