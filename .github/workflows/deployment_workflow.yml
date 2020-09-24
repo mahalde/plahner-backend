@@ -59,6 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Check directories
-        run: ls
+      - name: Check Quality Gate
+        run: bash scripts/check_quality_gate.sh https://sonarcloud.io ${{ secrets.SONAR_TOKEN }}
+        timeout-minutes: 2
       
