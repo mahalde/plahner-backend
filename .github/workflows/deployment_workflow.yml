@@ -32,3 +32,29 @@ jobs:
         uses: borales/actions-yarn@v2.3.0
         with:
           cmd: test
+
+  # Run a sonar-scan on the job
+  sonar_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+        with:
+          fetch-depth: 0
+
+      - name: Install node_modules
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: install
+
+      - name: Generate test coverage
+        uses: borales/actions-yarn@v2.3.0
+        with:
+            cmd: run test:cov
+
+      - name: SonarCloud scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
