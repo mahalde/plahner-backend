@@ -4,7 +4,13 @@ name: Deployment Workflow
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      merge:
+        description: Should a merge into master happen?
+        default: "true"
+        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -63,3 +69,19 @@ jobs:
         run: bash scripts/check_quality_gate.sh https://sonarcloud.io ${{ secrets.SONAR_TOKEN }}
         timeout-minutes: 2
       
+  # Merge the DEV branch to master
+  merge_to_master:
+    runs-on: ubuntu-latest
+    if: github.events.inputs.merge == "true"
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+
+      - name: Merge DEV to master
+        uses: devmasx/merge-branch@v1.3.0
+        with:
+            type: now
+            from_branch: DEV
+            target_branch: master
+            github_token: ${{ github.token }}
