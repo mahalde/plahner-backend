@@ -101,7 +101,7 @@ jobs:
         run: python scripts/increment_version.py ${{ github.event.inputs.release_step }}
 
       - name: Commit changed file
-        uses: stefanzweifel/git-auto-commit@v4
+        uses: stefanzweifel/git-auto-commit-action@v4.5.1
         with:
           commit_message: Incremented version
           file_pattern: package.json
