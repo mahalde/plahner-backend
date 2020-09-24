@@ -72,7 +72,7 @@ jobs:
   # Merge the DEV branch to master
   merge_to_master:
     runs-on: ubuntu-latest
-    if: 'github.events.inputs.merge == "true"'
+    if: github.events.inputs.merge == 'true'
 
     steps:
       - uses: actions/checkout@v2
