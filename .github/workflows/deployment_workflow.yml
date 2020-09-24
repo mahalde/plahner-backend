@@ -12,12 +12,23 @@ on:
         default: "true"
         required: true
 
+      increment:
+        description: Should the version be incremented?
+        default: "true"
+        required: true
+
+      release_step:
+        description: What is the release step (if the version should be incremented)?
+        default: "major"
+        required: false
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # Build the backend
   build_backend:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    name: Build and Test Backend
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -42,6 +53,7 @@ jobs:
   # Run a sonar-scan on the job
   sonar_scan:
     runs-on: ubuntu-latest
+    name: Sonar Scan
 
     steps:
       - uses: actions/checkout@v2
@@ -69,13 +81,40 @@ jobs:
         run: bash scripts/check_quality_gate.sh https://sonarcloud.io ${{ secrets.SONAR_TOKEN }}
         timeout-minutes: 2
 
-  # Merge the DEV branch to master
-  merge_to_master:
+  # Increment version
+  increment_version:
     runs-on: ubuntu-latest
-    if: github.events.inputs.merge == 'true'
+    name: Increment version
+    if: github.event.inputs.increment == 'true'
     needs:
       - build_backend
       - sonar_scan
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Increment version
+        run: python scripts/increment_version.py ${{ github.event.inputs.release_step }}
+
+      - name: Commit changed file
+        uses: stefanzweifel/git-auto-commit@v4
+        with:
+          commit_message: Incremented version
+          file_pattern: package.json
+
+  # Merge the DEV branch to master
+  merge_to_master:
+    runs-on: ubuntu-latest
+    name: Merge DEV to master
+    if: github.event.inputs.merge == 'true'
+    needs:
+      - build_backend
+      - sonar_scan
+      - increment_version
 
     steps:
       - uses: actions/checkout@v2
