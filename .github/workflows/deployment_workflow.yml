@@ -73,6 +73,9 @@ jobs:
   merge_to_master:
     runs-on: ubuntu-latest
     if: github.events.inputs.merge == 'true'
+    needs:
+      - build_backend
+      - sonar_scan
 
     steps:
       - uses: actions/checkout@v2
