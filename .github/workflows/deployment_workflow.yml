@@ -10,16 +10,21 @@ on:
       merge:
         description: Should a merge into master happen?
         default: "true"
-        required: true
+        required: false
 
       increment:
         description: Should the version be incremented?
         default: "true"
-        required: true
+        required: false
 
       release_step:
         description: What is the release step (if the version should be incremented)?
         default: "major"
+        required: false
+
+      tag:
+        description: Should the master branch be tagged with the new version?
+        default: "true"
         required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -127,3 +132,23 @@ jobs:
           from_branch: develop
           target_branch: master
           github_token: ${{ github.token }}
+
+  # Tag the master branch with the current version
+  tag_branch:
+    runs-on: ubuntu-latest
+    name: Tag master branch
+    if: github.event.inputs.tag == 'true'
+    needs:
+      - build_backend
+      - sonar_scan
+      - increment_version
+      - merge_to_master
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
+      - name: Tag master branch
+        run: bash scripts/tag_branch.sh
