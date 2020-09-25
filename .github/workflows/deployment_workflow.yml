@@ -32,6 +32,11 @@ on:
         default: "true"
         required: false
 
+      deploy:
+        description: Should a new version be deployed on the server?
+        default: "true"
+        required: false
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # Build the backend
@@ -122,8 +127,6 @@ jobs:
     name: Merge develop to master
     if: github.event.inputs.merge == 'true'
     needs:
-      - build_backend
-      - sonar_scan
       - increment_version
 
     steps:
@@ -144,9 +147,6 @@ jobs:
     name: Tag master branch
     if: github.event.inputs.tag == 'true'
     needs:
-      - build_backend
-      - sonar_scan
-      - increment_version
       - merge_to_master
 
     steps:
@@ -164,9 +164,6 @@ jobs:
     name: Build Docker Image
     if: github.event.inputs.build_docker == 'true'
     needs:
-      - build_backend
-      - sonar_scan
-      - increment_version
       - merge_to_master
 
     steps:
@@ -188,3 +185,24 @@ jobs:
         with:
           push: true
           tags: plahner:latest
+
+  # Deploy Docker Image on server
+  deploy_to_server:
+    runs-on: ubuntu-latest
+    name: Deploy on Server
+    if: github.event.inputs.deploy == 'true'
+    needs:
+      - build_docker
+
+    steps:
+      - name: Read deploy script
+        id: read_script
+        run: echo ::set-output name=script::$(cat scripts/deploy_to_server.sh)
+
+      - name: Deploy Docker Image
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: ${{ steps.read_script.outputs.script }}
