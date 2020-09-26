@@ -155,8 +155,17 @@ jobs:
         with:
           ref: master
 
+      - name: Get version
+        id: get_version
+        run: 'echo ::set-output name=version::$(cat package.json | grep -oP ''(?<="version": ")[^"]*'')'
+
       - name: Tag master branch
-        run: bash scripts/tag_branch.sh ${{ github.repository_owner }} ${{ secrets.OWNER_MAIL }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: Release of version ${{ steps.get_version.outputs.version }}
 
   # Builds and pushes a docker image
   build_docker:
