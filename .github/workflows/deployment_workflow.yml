@@ -177,6 +177,11 @@ jobs:
       - merge_to_master
 
     steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
 
