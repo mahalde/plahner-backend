@@ -166,6 +166,7 @@ jobs:
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
           release_name: Release of version ${{ steps.get_version.outputs.version }}
+          commitish: master
 
   # Builds and pushes a docker image
   build_docker:
