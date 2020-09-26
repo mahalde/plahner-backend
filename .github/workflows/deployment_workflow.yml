@@ -130,7 +130,7 @@ jobs:
       - increment_version
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
         name: Checkout Backend
 
       - name: Merge develop to master
@@ -139,7 +139,7 @@ jobs:
           type: now
           from_branch: develop
           target_branch: master
-          github_token: ${{ github.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   # Tag the master branch with the current version
   tag_branch:
@@ -195,6 +195,11 @@ jobs:
       - build_docker
 
     steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
       - name: Read deploy script
         id: read_script
         run: echo ::set-output name=script::$(cat scripts/deploy_to_server.sh)

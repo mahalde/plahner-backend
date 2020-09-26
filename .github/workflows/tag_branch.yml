@@ -1,0 +1,18 @@
+name: Tag Branch
+
+on: workflow_dispatch
+
+jobs:
+  # Tag the master branch with the current version
+  tag_branch:
+    runs-on: ubuntu-latest
+    name: Tag master branch
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
+      - name: Tag master branch
+        run: bash scripts/tag_branch.sh
