@@ -14,10 +14,6 @@ jobs:
         with:
           ref: master
       
-      - name: Read deploy script
-        id: read_script
-        run: echo ::set-output name=script::$(cat scripts/deploy_to_server.sh)
-
       - name: Deploy Docker Image
         uses: appleboy/ssh-action@master
         with:
@@ -28,6 +24,8 @@ jobs:
             #!/usr/bin/env bash
 
             su - docker
+
+            echo ${{ secrets.REPO_TOKEN }} | docker login ghcr.io -u mahalde --password-stdin
 
             docker pull ghcr.io/mahalde/plahner-backend:latest
 
