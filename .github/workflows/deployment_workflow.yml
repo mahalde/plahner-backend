@@ -1,0 +1,213 @@
+# This is a basic workflow that is manually triggered
+
+name: Deployment Workflow
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    inputs:
+      merge:
+        description: Should a merge into master happen?
+        default: "true"
+        required: false
+
+      increment:
+        description: Should the version be incremented?
+        default: "true"
+        required: false
+
+      release_step:
+        description: What is the release step (if the version should be incremented)?
+        default: "major"
+        required: false
+
+      tag:
+        description: Should the master branch be tagged with the new version?
+        default: "true"
+        required: false
+
+      build_docker:
+        description: Should a new docker image be built?
+        default: "true"
+        required: false
+
+      deploy:
+        description: Should a new version be deployed on the server?
+        default: "true"
+        required: false
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # Build the backend
+  build_backend:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    name: Build and Test Backend
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+
+      - name: Install node_modules
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: install
+
+      - name: Build Backend
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: build
+
+      - name: Test Backend
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: test
+
+  # Run a sonar-scan on the job
+  sonar_scan:
+    runs-on: ubuntu-latest
+    name: Sonar Scan
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+        with:
+          fetch-depth: 0
+
+      - name: Install node_modules
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: install
+
+      - name: Generate test coverage
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: run test:cov
+
+      - name: SonarCloud scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Check Quality Gate
+        run: bash scripts/check_quality_gate.sh https://sonarcloud.io ${{ secrets.SONAR_TOKEN }}
+        timeout-minutes: 2
+
+  # Increment version
+  increment_version:
+    runs-on: ubuntu-latest
+    name: Increment version
+    if: github.event.inputs.increment == 'true'
+    needs:
+      - build_backend
+      - sonar_scan
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Increment version
+        run: python scripts/increment_version.py ${{ github.event.inputs.release_step }}
+
+      - name: Commit changed file
+        uses: stefanzweifel/git-auto-commit-action@v4.5.1
+        with:
+          commit_message: Incremented version
+          file_pattern: package.json
+
+  # Merge the develop branch to master
+  merge_to_master:
+    runs-on: ubuntu-latest
+    name: Merge develop to master
+    if: github.event.inputs.merge == 'true'
+    needs:
+      - increment_version
+
+    steps:
+      - uses: actions/checkout@master
+        name: Checkout Backend
+
+      - name: Merge develop to master
+        uses: devmasx/merge-branch@v1.3.0
+        with:
+          type: now
+          head_to_merge: develop
+          target_branch: master
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Tag the master branch with the current version
+  tag_branch:
+    runs-on: ubuntu-latest
+    name: Tag master branch
+    if: github.event.inputs.tag == 'true'
+    needs:
+      - merge_to_master
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
+      - name: Tag master branch
+        run: bash scripts/tag_branch.sh
+
+  # Builds and pushes a docker image
+  build_docker:
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    if: github.event.inputs.build_docker == 'true'
+    needs:
+      - merge_to_master
+
+    steps:
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v1
+        with:
+          registry: docker.pkg.github.com
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: plahner:latest
+
+  # Deploy Docker Image on server
+  deploy_to_server:
+    runs-on: ubuntu-latest
+    name: Deploy on Server
+    if: github.event.inputs.deploy == 'true'
+    needs:
+      - build_docker
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
+      - name: Read deploy script
+        id: read_script
+        run: echo ::set-output name=script::$(cat scripts/deploy_to_server.sh)
+
+      - name: Deploy Docker Image
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: ${{ steps.read_script.outputs.script }}

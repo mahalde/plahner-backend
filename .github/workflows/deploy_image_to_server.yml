@@ -1,0 +1,27 @@
+name: Deploy on Server
+
+on: workflow_dispatch
+
+jobs:
+  # Deploy Docker Image on server
+  deploy_to_server:
+    runs-on: ubuntu-latest
+    name: Deploy on Server
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+      
+      - name: Read deploy script
+        id: read_script
+        run: echo ::set-output name=script::$(cat scripts/deploy_to_server.sh)
+
+      - name: Deploy Docker Image
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: ${{ steps.read_script.outputs.script }}

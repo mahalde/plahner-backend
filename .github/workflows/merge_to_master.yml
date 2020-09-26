@@ -1,0 +1,22 @@
+name: Merge to master
+
+on: workflow_dispatch
+
+jobs:
+    # Merge the develop branch to master
+  merge_to_master:
+    runs-on: ubuntu-latest
+    name: Merge develop to master
+
+    steps:
+      - uses: actions/checkout@master
+        name: Checkout Backend
+
+      - name: Merge develop to master
+        uses: devmasx/merge-branch@v1.3.0
+        with:
+          type: now
+          head_to_merge: develop
+          target_branch: master
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
