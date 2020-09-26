@@ -15,4 +15,4 @@ jobs:
           ref: master
 
       - name: Tag master branch
-        run: bash scripts/tag_branch.sh
+        run: bash scripts/tag_branch.sh ${{ github.repository_owner }} ${{ secrets.OWNER_MAIL }}
