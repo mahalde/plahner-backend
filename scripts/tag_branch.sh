@@ -2,9 +2,11 @@
 
 version=$(cat package.json | grep -oP '(?<=\"version\": \")[^\"]*')
 
-git config user.name "${1}"
+git config --global user.name "${1}"
 
-git config user.email "${2}"
+git config --global user.email "${2}"
+
+echo $(git config -l)
 
 git tag -a "v$version" -m "Release of version: $version"
 
