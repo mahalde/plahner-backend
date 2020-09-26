@@ -155,8 +155,18 @@ jobs:
         with:
           ref: master
 
+      - name: Get version
+        id: get_version
+        run: 'echo ::set-output name=version::$(cat package.json | grep -oP ''(?<="version": ")[^"]*'')'
+
       - name: Tag master branch
-        run: bash scripts/tag_branch.sh
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: Release of version ${{ steps.get_version.outputs.version }}
+          commitish: master
 
   # Builds and pushes a docker image
   build_docker:
@@ -167,24 +177,38 @@ jobs:
       - merge_to_master
 
     steps:
+      - uses: actions/checkout@v2
+        name: Checkout master branch
+        with:
+          ref: master
+
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Login to Github Packages
+      - name: Login to Github Container Registry
         uses: docker/login-action@v1
         with:
-          registry: docker.pkg.github.com
+          registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.REPO_TOKEN }}
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-buildx-
 
       - name: Build and push Image
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: plahner:latest
+          tags: ghcr.io/mahalde/plahner-backend:latest
 
   # Deploy Docker Image on server
   deploy_to_server:
@@ -200,14 +224,21 @@ jobs:
         with:
           ref: master
 
-      - name: Read deploy script
-        id: read_script
-        run: echo ::set-output name=script::$(cat scripts/deploy_to_server.sh)
-
       - name: Deploy Docker Image
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script: ${{ steps.read_script.outputs.script }}
+          script: |
+            #!/usr/bin/env bash
+
+            su - docker
+
+            echo ${{ secrets.REPO_TOKEN }} | docker login ghcr.io -u mahalde --password-stdin
+
+            docker pull ghcr.io/mahalde/plahner-backend:latest
+
+            docker stop plahner-backend
+            docker rm plahner-backend
+            docker run -dp 80:3000 --name plahner-backend ghcr.io/mahalde/plahner-backend:latest
