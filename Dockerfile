@@ -34,4 +34,4 @@ COPY --from=build-stage /app/package*.json /app/
 RUN npm ci --only=production
 
 # Start the backend
-CMD ["node", "/app/main"]
+CMD ["node", "/app/src/main"]
