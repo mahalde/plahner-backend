@@ -2,6 +2,10 @@
 
 version=$(cat package.json | grep -oP '(?<=\"version\": \")[^\"]*')
 
+echo $(git config -l)
+
+git init
+
 git config --global user.name "${1}"
 
 git config --global user.email "${2}"
