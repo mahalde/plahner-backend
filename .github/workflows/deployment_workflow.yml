@@ -241,4 +241,4 @@ jobs:
 
             docker stop plahner-backend
             docker rm plahner-backend
-            docker run -dp 80:3000 --name plahner-backend ghcr.io/mahalde/plahner-backend:latest
+            docker run -d --name plahner-backend --hostname ${{ secrets.SERVER_URL }} -e VIRTUAL_HOST=${{ secrets.SERVER_URL }} -e LETSENCRYPT_HOST=${{ secrets.SERVER_URL }} -e LETSENCRYPT_EMAIL=${{ secrets.OWNER_MAIL }} --network nginx-proxy --expose 3000 ghcr.io/mahalde/plahner-backend:latest

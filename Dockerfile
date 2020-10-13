@@ -1,24 +1,23 @@
 # Base image for building
-FROM node:12.6.0-slim as build-stage
+FROM node:12.18.0-slim as build-stage
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json .
+# Copy package.json and yarn.lock
+COPY package*.json yarn.lock ./
 
 # Install dependencies
-# If you add a package-lock.json, speed your build by switching to 'npm ci'
-RUN npm i
+RUN yarn install --frozen-lockfile
 
 # Add app
 COPY . /app/
 
 # Build the backend
-RUN npm run build
+RUN yarn build
 
 # Base image for serving
-FROM node:12.6.0-alpine
+FROM node:12.18.0-alpine
 
 # Set working directory
 WORKDIR /app
@@ -27,11 +26,13 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy the compiled app code and package files
-COPY --from=build-stage /app/dist /app
-COPY --from=build-stage /app/package*.json /app/
+COPY --from=build-stage /app/dist /app/package.json /app/yarn.lock /app/
 
 # Install production modules
-RUN npm ci --only=production
+RUN yarn install --frozen-lockfile --prod
+
+# Install pm2
+RUN npm install pm2 -g
 
 # Start the backend
-CMD ["node", "/app/src/main"]
+CMD ["pm2-runtime", "/app/src/main.js"]
