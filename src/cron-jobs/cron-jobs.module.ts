@@ -4,4 +4,4 @@ import { WatchInboxService } from './watch-inbox.service';
 @Module({
   providers: [WatchInboxService]
 })
-export class CronJobsModule {}
+export class CronJobsModule { }

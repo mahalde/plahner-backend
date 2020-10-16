@@ -1,18 +1,31 @@
-import { Logger } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import { gmail_v1 } from 'googleapis';
+import { LoggerService } from './logger.service';
 
 export class GmailClientService {
-  private readonly logger = new Logger(GmailClientService.name);
+  private readonly logger = new LoggerService(GmailClientService.name);
 
+  /** The gmail client responsible for handling API requests */
   private gmailClient: gmail_v1.Gmail;
 
   constructor(
     readonly oAuth2Client: OAuth2Client,
     private readonly userId: string
   ) {
-    this.logger.log(oAuth2Client);
     this.gmailClient = new gmail_v1.Gmail({ auth: oAuth2Client as any });
+  }
+
+  /**
+   * Send a request to watch the inbox for specified userId
+   * @param topicName The name of the Pub/Sub topic to publish the events to
+   */
+  async watchInbox(topicName: string): Promise<void> {
+    try {
+      await this.gmailClient.users.watch({ userId: this.userId, requestBody: { topicName } });
+      this.logger.info('Request to watch inbox handled successfully');
+    } catch (err) {
+      this.logger.error('Error while watching inbox:', err);
+    }
   }
 
   /**

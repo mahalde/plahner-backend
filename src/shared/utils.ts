@@ -7,3 +7,10 @@ export async function asyncMap<T = any, R = any>(arr: T[], asyncCallback: (el: T
   const promises = arr.map(asyncCallback);
   return Promise.all(promises);
 }
+
+/**
+ * Check whether we are in production mode or not
+ */
+export function isProdMode(): boolean {
+  return process.env.NODE_ENV === 'production';
+}

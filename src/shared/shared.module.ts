@@ -1,4 +1,4 @@
-import { Module, Provider } from '@nestjs/common';
+import { Global, Module, Provider } from '@nestjs/common';
 import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
@@ -41,17 +41,17 @@ const gmailClientFactory: Provider<GmailClientService> = {
   provide: GmailClientService,
   useFactory: (oAuth2Client: OAuth2Client) => {
     const userId = 'me';
-    console.log(oAuth2Client);
     return new GmailClientService(oAuth2Client, userId);
   },
   inject: [OAuth2Client]
 }
 
+@Global()
 @Module({
   providers: [
     GmailClientService,
     oAuth2ClientFactory,
-    gmailClientFactory
+    gmailClientFactory,
   ],
   exports: [gmailClientFactory]
 })
