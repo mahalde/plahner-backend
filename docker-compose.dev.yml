@@ -1,0 +1,10 @@
+version: '3'
+
+services: 
+  gcloud-pubsub-emulator:
+    image: messagebird/gcloud-pubsub-emulator
+    container_name: gcloud-pubsub-emulator
+    environment: 
+      - PUBSUB_PROJECT1=plahner-backend-dev,inbox:inbox-listener
+    ports: 
+      - 8681:8681

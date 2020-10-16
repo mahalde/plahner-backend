@@ -8,10 +8,14 @@ import { AppService } from './app.service';
 import { AutoEntryModule } from './auto-entry/auto-entry.module';
 import { CronJobsModule } from './cron-jobs/cron-jobs.module';
 import { SharedModule } from './shared/shared.module';
+import { isProdMode } from './shared/utils';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: isProdMode() ? '.env' : '.development.env'
+    }),
     ScheduleModule.forRoot(),
     AutoEntryModule,
     CronJobsModule,
