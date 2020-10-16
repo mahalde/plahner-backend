@@ -4,9 +4,4 @@ import { InboxListenerService } from './inbox-listener.service';
 @Module({
   providers: [InboxListenerService]
 })
-export class AutoEntryModule {
-
-  constructor(listenerService: InboxListenerService) {
-    listenerService.listenToInbox();
-  }
-}
+export class AutoEntryModule { }
