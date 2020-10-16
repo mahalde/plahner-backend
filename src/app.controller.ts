@@ -22,14 +22,9 @@ export class AppController {
     return this.version;
   }
 
-  @Get('mailIDs')
-  getMailIDs() {
-    return this.gmailClient.getAllInboxMessageIDs();
-  }
-
   @Get('mail')
   async getMail() {
-    const mailIDs = await this.gmailClient.getAllInboxMessageIDs();
-    return asyncMap(mailIDs, id => this.gmailClient.getMail(id.id));
+    const mailIDs = await this.gmailClient.getAllInboxMessageIDs() ?? [];
+    return asyncMap(mailIDs, id => this.gmailClient.getMail(id.id ?? ''));
   }
 }
