@@ -8,7 +8,6 @@ describe('AppController', () => {
   let app: TestingModule;
   const expectedVersion = '0.3.0';
 
-
   beforeEach(async () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
@@ -17,12 +16,12 @@ describe('AppController', () => {
           provide: AppService,
           useValue: {
             getHello: () => 'Hello from the Plahner Backend in test mode!',
-          }
+          },
         },
         {
           provide: VERSION_TOKEN,
           useFactory: () => expectedVersion,
-        }
+        },
       ],
     }).compile();
 

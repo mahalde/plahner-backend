@@ -6,11 +6,10 @@ import { GCLOUD_TOPIC_NAME } from 'src/shared/shared.constants';
 
 @Injectable()
 export class WatchInboxService {
-
   constructor(
     private readonly config: ConfigService,
     private readonly gmailClient: GmailClientService,
-  ) { }
+  ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   public async watchGMailInbox(): Promise<void> {

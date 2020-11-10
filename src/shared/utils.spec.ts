@@ -1,11 +1,8 @@
 import { asyncMap, isProdMode } from './utils';
 
 describe('Utils', () => {
-
   describe('asyncMap', () => {
-
     it('should map the array with async methods', async () => {
-
       const givenArr = [1, 2, 3];
       const asyncFn = async (num: number) => Promise.resolve(num * 2);
       const expectedArr = [2, 4, 6];
@@ -16,7 +13,6 @@ describe('Utils', () => {
   });
 
   describe('isProdMode', () => {
-
     it('should return true if the process is in production mode', () => {
       process.env.NODE_ENV = 'production';
 

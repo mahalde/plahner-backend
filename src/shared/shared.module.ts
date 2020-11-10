@@ -3,7 +3,10 @@ import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
 import { GmailClientService } from './services/gmail-client.service';
-import { OAUTH2_ACCESS_TOKEN_PATH, OAUTH2_CREDENTIALS_PATH } from './shared.constants';
+import {
+  OAUTH2_ACCESS_TOKEN_PATH,
+  OAUTH2_CREDENTIALS_PATH,
+} from './shared.constants';
 
 interface OAuth2AccessToken {
   access_token: string;
@@ -23,19 +26,27 @@ interface OAuth2ClientCredentials {
     client_secret: string;
     redirect_uris: string[];
     javascript_origins: string[];
-  }
+  };
 }
 
 const oAuth2ClientFactory: Provider<OAuth2Client> = {
   provide: OAuth2Client,
   useFactory: () => {
-    const token: OAuth2AccessToken = JSON.parse(readFileSync(OAUTH2_ACCESS_TOKEN_PATH).toString());
-    const { web: credentials }: OAuth2ClientCredentials = JSON.parse(readFileSync(OAUTH2_CREDENTIALS_PATH).toString());
-    const oAuth2Client = new google.auth.OAuth2(credentials.client_id, credentials.client_secret, credentials.redirect_uris[0]);
+    const token: OAuth2AccessToken = JSON.parse(
+      readFileSync(OAUTH2_ACCESS_TOKEN_PATH).toString(),
+    );
+    const { web: credentials }: OAuth2ClientCredentials = JSON.parse(
+      readFileSync(OAUTH2_CREDENTIALS_PATH).toString(),
+    );
+    const oAuth2Client = new google.auth.OAuth2(
+      credentials.client_id,
+      credentials.client_secret,
+      credentials.redirect_uris[0],
+    );
     oAuth2Client.setCredentials(token);
     return oAuth2Client as any;
-  }
-}
+  },
+};
 
 const gmailClientFactory: Provider<GmailClientService> = {
   provide: GmailClientService,
@@ -43,16 +54,12 @@ const gmailClientFactory: Provider<GmailClientService> = {
     const userId = 'me';
     return new GmailClientService(oAuth2Client, userId);
   },
-  inject: [OAuth2Client]
-}
+  inject: [OAuth2Client],
+};
 
 @Global()
 @Module({
-  providers: [
-    GmailClientService,
-    oAuth2ClientFactory,
-    gmailClientFactory,
-  ],
-  exports: [gmailClientFactory]
+  providers: [GmailClientService, oAuth2ClientFactory, gmailClientFactory],
+  exports: [gmailClientFactory],
 })
-export class SharedModule { }
+export class SharedModule {}

@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { InboxListenerService } from './inbox-listener.service';
 
 @Module({
-  providers: [InboxListenerService]
+  providers: [InboxListenerService],
 })
-export class AutoEntryModule { }
+export class AutoEntryModule {}

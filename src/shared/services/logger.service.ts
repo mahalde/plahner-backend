@@ -4,8 +4,7 @@ import { isProdMode } from '../utils';
 const { combine, timestamp, printf, colorize, prettyPrint } = winston.format;
 
 export class LoggerService {
-
-  private logger: winston.Logger;
+  private readonly logger: winston.Logger;
 
   constructor(readonly serviceName: string) {
     this.logger = winston.createLogger({
@@ -18,19 +17,23 @@ export class LoggerService {
       ],
     });
 
-    const consoleFormat: winston.Logform.Format = printf((o) => {
+    const consoleFormat: winston.Logform.Format = printf(o => {
       const hasError = o.level === 'error';
-      return `${o.level.toUpperCase().padEnd(7)} ${o.timestamp} - [${o.service}] ${o.message} ${hasError ? '\n' + o.stack : ''}`;
+      return `${o.level.toUpperCase().padEnd(7)} ${o.timestamp} - [${
+        o.service
+      }] ${o.message} ${hasError ? '\n' + o.stack : ''}`;
     });
 
     if (!isProdMode()) {
-      this.logger.add(new winston.transports.Console({
-        format: combine(
-          colorize({ message: true }),
-          timestamp(),
-          consoleFormat,
-        )
-      }));
+      this.logger.add(
+        new winston.transports.Console({
+          format: combine(
+            colorize({ message: true }),
+            timestamp(),
+            consoleFormat,
+          ),
+        }),
+      );
     }
   }
 

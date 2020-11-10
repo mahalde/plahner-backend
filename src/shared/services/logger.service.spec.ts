@@ -10,7 +10,9 @@ describe('LoggerService', () => {
   beforeEach(async () => {
     service = new LoggerService('TestService');
     logger = (service as any).logger;
-    transportNames = (logger.transports as any[]).map((transport: FileTransportInstance) => transport.name);
+    transportNames = (logger.transports as any[]).map(
+      (transport: FileTransportInstance) => transport.name,
+    );
   });
 
   it('should be defined', () => {
@@ -38,16 +40,17 @@ describe('LoggerService', () => {
   });
 
   describe('production mode', () => {
-
     beforeEach(async () => {
       process.env.NODE_ENV = 'production';
 
       service = new LoggerService('TestService');
       logger = (service as any).logger;
-      transportNames = (logger.transports as any[]).map((transport: FileTransportInstance) => transport.name);
+      transportNames = (logger.transports as any[]).map(
+        (transport: FileTransportInstance) => transport.name,
+      );
     });
 
-    afterEach(() => process.env.NODE_ENV = 'test');
+    afterEach(() => (process.env.NODE_ENV = 'test'));
 
     it('should have level `info` on production mode', () => {
       expect(logger.level).toBe('info');
@@ -59,7 +62,10 @@ describe('LoggerService', () => {
   });
 
   describe('logging methods', () => {
-    const args: [string, string] = ['This is the message', 'This is an argument'];
+    const args: [string, string] = [
+      'This is the message',
+      'This is an argument',
+    ];
     const errorArgs: [string, Error] = [
       'This is the Error',
       new Error('Error message'),

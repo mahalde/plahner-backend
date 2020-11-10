@@ -14,7 +14,7 @@ import { isProdMode } from './shared/utils';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: isProdMode() ? '.env' : '.development.env'
+      envFilePath: isProdMode() ? '.env' : '.development.env',
     }),
     ScheduleModule.forRoot(),
     AutoEntryModule,
@@ -26,8 +26,8 @@ import { isProdMode } from './shared/utils';
     AppService,
     {
       provide: VERSION_TOKEN,
-      useValue: version
+      useValue: version,
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

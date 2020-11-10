@@ -7,12 +7,12 @@ const emitter = new EventEmitter();
 
 jest.mock('@google-cloud/pubsub', () => {
   return {
-    PubSub: function () {
+    PubSub: function() {
       return {
-        subscription: jest.fn(() => emitter)
-      }
-    }
-  }
+        subscription: jest.fn(() => emitter),
+      };
+    },
+  };
 });
 
 describe('InboxListenerService', () => {
@@ -50,7 +50,7 @@ describe('InboxListenerService', () => {
         data: 'messageData',
         attributes: 'messageAttributes',
         ack: () => ({}),
-      }
+      };
       const spy = jest.spyOn(message, 'ack');
 
       service.listenToInbox();
@@ -60,5 +60,4 @@ describe('InboxListenerService', () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
-
 });

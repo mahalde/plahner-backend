@@ -6,8 +6,8 @@ import { WatchInboxService } from './watch-inbox.service';
 describe('WatchInboxService', () => {
   let service: WatchInboxService;
   const mockGmailClientService = {
-    watchInbox: jest.fn()
-  }
+    watchInbox: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -17,7 +17,7 @@ describe('WatchInboxService', () => {
         {
           provide: GmailClientService,
           useValue: mockGmailClientService,
-        }
+        },
       ],
     }).compile();
 
@@ -29,7 +29,6 @@ describe('WatchInboxService', () => {
   });
 
   describe('watchGMailInbox', () => {
-
     afterEach(() => {
       mockGmailClientService.watchInbox.mockClear();
     });
@@ -44,7 +43,9 @@ describe('WatchInboxService', () => {
       await service.watchGMailInbox();
 
       expect(mockGmailClientService.watchInbox).toBeCalledTimes(1);
-      expect(mockGmailClientService.watchInbox).toHaveBeenCalledWith('testProject');
+      expect(mockGmailClientService.watchInbox).toHaveBeenCalledWith(
+        'testProject',
+      );
     });
   });
 });

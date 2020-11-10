@@ -3,7 +3,7 @@ const watchMock = jest.fn();
 const messageListMock = jest.fn();
 const messageGetMock = jest.fn();
 
-const gmailMock = jest.fn(function (oauth2Client, userId) {
+const gmailMock = jest.fn(function(oauth2Client, userId) {
   return {
     users: {
       watch: watchMock,
@@ -19,7 +19,7 @@ const mocks: jest.Mock[] = [
   gmailMock,
   watchMock,
   messageGetMock,
-  messageListMock
+  messageListMock,
 ];
 
 import { OAuth2Client } from 'google-auth-library';
@@ -27,13 +27,12 @@ import { gmail_v1 } from 'googleapis';
 import { GmailClientService } from './gmail-client.service';
 import { LoggerService } from './logger.service';
 
-
 jest.mock('googleapis', () => {
   return {
     gmail_v1: {
-      Gmail: gmailMock
-    }
-  }
+      Gmail: gmailMock,
+    },
+  };
 });
 
 describe('GmailClientService', () => {
@@ -46,8 +45,14 @@ describe('GmailClientService', () => {
   beforeEach(() => {
     const oauthClient = new OAuth2Client();
     service = new GmailClientService(oauthClient, expectedUserId);
-    loggerInfoSpy = jest.spyOn((service as any).logger as LoggerService, 'info');
-    loggerErrorSpy = jest.spyOn((service as any).logger as LoggerService, 'error');
+    loggerInfoSpy = jest.spyOn(
+      (service as any).logger as LoggerService,
+      'info',
+    );
+    loggerErrorSpy = jest.spyOn(
+      (service as any).logger as LoggerService,
+      'error',
+    );
 
     expect(gmailMock).toHaveBeenCalledWith({ auth: oauthClient });
   });
@@ -69,8 +74,13 @@ describe('GmailClientService', () => {
       watchMock.mockResolvedValue(null);
       await service.watchInbox(expectedTopicName);
 
-      expect(watchMock).toHaveBeenCalledWith({ userId: expectedUserId, requestBody: { topicName: expectedTopicName } });
-      expect(loggerInfoSpy).toHaveBeenCalledWith(expect.stringContaining('handled successfully'));
+      expect(watchMock).toHaveBeenCalledWith({
+        userId: expectedUserId,
+        requestBody: { topicName: expectedTopicName },
+      });
+      expect(loggerInfoSpy).toHaveBeenCalledWith(
+        expect.stringContaining('handled successfully'),
+      );
     });
 
     it('should log the error on watch inbox error', async () => {
@@ -78,33 +88,49 @@ describe('GmailClientService', () => {
 
       await service.watchInbox(expectedTopicName);
 
-      expect(watchMock).toHaveBeenCalledWith({ userId: expectedUserId, requestBody: { topicName: expectedTopicName } });
+      expect(watchMock).toHaveBeenCalledWith({
+        userId: expectedUserId,
+        requestBody: { topicName: expectedTopicName },
+      });
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Error'),
-        expectedError
+        expectedError,
       );
     });
   });
 
   describe('getAllInboxMessageIDs', () => {
     const expectedMessages: gmail_v1.Schema$Message[] = [
-      { id: 'testId' }, { id: 'anotherId' }
+      { id: 'testId' },
+      { id: 'anotherId' },
     ];
 
-    beforeEach(() => messageListMock.mockResolvedValue({ data: { messages: expectedMessages } }));
+    beforeEach(() =>
+      messageListMock.mockResolvedValue({
+        data: { messages: expectedMessages },
+      }),
+    );
 
     it('should return the messages', async () => {
       const numberOfMessages = 10;
-      const actualMessages = await service.getAllInboxMessageIDs(numberOfMessages);
+      const actualMessages = await service.getAllInboxMessageIDs(
+        numberOfMessages,
+      );
 
-      expect(messageListMock).toHaveBeenCalledWith({ userId: expectedUserId, maxResults: numberOfMessages });
+      expect(messageListMock).toHaveBeenCalledWith({
+        userId: expectedUserId,
+        maxResults: numberOfMessages,
+      });
       expect(actualMessages).toStrictEqual(expectedMessages);
     });
 
     it('should return a default of 20 messages', async () => {
       await service.getAllInboxMessageIDs();
 
-      expect(messageListMock).toHaveBeenCalledWith({ userId: expectedUserId, maxResults: 20 });
+      expect(messageListMock).toHaveBeenCalledWith({
+        userId: expectedUserId,
+        maxResults: 20,
+      });
     });
 
     it('should log an error and return undefined on failure', async () => {
@@ -114,7 +140,7 @@ describe('GmailClientService', () => {
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Error'),
-        expectedError
+        expectedError,
       );
       expect(actualMessages).toBeUndefined();
     });
@@ -126,12 +152,17 @@ describe('GmailClientService', () => {
       id: expectedId,
     };
 
-    beforeEach(() => messageGetMock.mockResolvedValue({ data: expectedMessage }));
+    beforeEach(() =>
+      messageGetMock.mockResolvedValue({ data: expectedMessage }),
+    );
 
     it('should fetch the message', async () => {
       const actualMessage = await service.getMail(expectedId);
 
-      expect(messageGetMock).toHaveBeenCalledWith({ userId: expectedUserId, id: expectedId });
+      expect(messageGetMock).toHaveBeenCalledWith({
+        userId: expectedUserId,
+        id: expectedId,
+      });
       expect(actualMessage).toStrictEqual(expectedMessage);
     });
 
@@ -142,7 +173,7 @@ describe('GmailClientService', () => {
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Error'),
-        expectedError
+        expectedError,
       );
       expect(actualMessage).toBeUndefined();
     });
