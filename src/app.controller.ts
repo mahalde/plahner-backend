@@ -6,8 +6,8 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    @Inject(VERSION_TOKEN) private version: string
-  ) { }
+    @Inject(VERSION_TOKEN) private readonly version: string,
+  ) {}
 
   @Get()
   getHello(): string {
