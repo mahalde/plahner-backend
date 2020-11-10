@@ -13,7 +13,12 @@ describe('AppController', () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
-        AppService,
+        {
+          provide: AppService,
+          useValue: {
+            getHello: () => 'Hello from the Plahner Backend in test mode!',
+          }
+        },
         {
           provide: VERSION_TOKEN,
           useFactory: () => expectedVersion,

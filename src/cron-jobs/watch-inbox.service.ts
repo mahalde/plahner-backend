@@ -14,7 +14,7 @@ export class WatchInboxService {
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   public async watchGMailInbox(): Promise<void> {
-    const topicName = this.config.get<string>(GCLOUD_TOPIC_NAME) ?? '';
+    const topicName = this.config.get<string>(GCLOUD_TOPIC_NAME, '');
 
     await this.gmailClient.watchInbox(topicName);
   }

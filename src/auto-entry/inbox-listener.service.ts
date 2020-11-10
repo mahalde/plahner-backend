@@ -2,7 +2,7 @@ import { Message, PubSub } from '@google-cloud/pubsub';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LoggerService } from 'src/shared/services/logger.service';
-import { GCLOUD_SUBSCRIPTION_NAME } from 'src/shared/shared.constants';
+import { GCLOUD_PROJECT_ID, GCLOUD_SUBSCRIPTION_NAME } from 'src/shared/shared.constants';
 
 @Injectable()
 export class InboxListenerService implements OnModuleInit {
@@ -16,10 +16,12 @@ export class InboxListenerService implements OnModuleInit {
 
   public listenToInbox(): void {
     this.logger.info('Started listener');
-    const projectId = this.config.get<string>('GCLOUD_PROJECT_ID');
-    const subscriptionName = this.config.get<string>(GCLOUD_SUBSCRIPTION_NAME) ?? '';
+    const projectId = this.config.get<string>(GCLOUD_PROJECT_ID);
+    const subscriptionName = this.config.get<string>(GCLOUD_SUBSCRIPTION_NAME, '');
 
     const pubSub = new PubSub({ projectId });
+    this.logger.info(pubSub.options);
+    this.logger.info(pubSub.isEmulator);
     const subscription = pubSub.subscription(subscriptionName);
 
     const messageHandler = (message: Message) => {

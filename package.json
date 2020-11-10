@@ -21,7 +21,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./e2e/jest-e2e.json"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^2.5.0",
@@ -43,6 +43,7 @@
     "@types/cron": "^1.7.2",
     "@types/express": "^4.17.3",
     "@types/jest": "26.0.10",
+    "@types/jest-when": "^2.7.2",
     "@types/node": "^13.9.1",
     "@types/supertest": "^2.0.8",
     "@typescript-eslint/eslint-plugin": "3.9.1",
@@ -53,7 +54,10 @@
     "eslint-plugin-import": "^2.20.1",
     "google-auth-library": "^6.1.1",
     "jest": "26.4.2",
+    "jest-extended": "^0.11.5",
+    "jest-when": "^3.0.0",
     "prettier": "^1.19.1",
+    "sonar-scanner": "^3.1.0",
     "supertest": "^4.0.2",
     "ts-jest": "26.2.0",
     "ts-loader": "^6.2.1",
@@ -67,12 +71,17 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1",
+      "^test/(.*)$": "<rootDir>/../test/$1"
+    },
     "rootDir": "src",
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["jest-extended"]
   }
 }
