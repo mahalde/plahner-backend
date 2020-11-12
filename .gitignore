@@ -105,8 +105,3 @@ dist
 
 # Sonar-Scanner output
 .scannerwork/
-
-# Project specific
-plahner-serviceaccount-credentials.json
-plahner-oauth-mail-client.json
-oauth2-token.json
