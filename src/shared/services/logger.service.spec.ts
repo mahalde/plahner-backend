@@ -70,6 +70,10 @@ describe('LoggerService', () => {
       'This is the Error',
       new Error('Error message'),
     ];
+    const expectedErrorArgs: [string, Error] = [
+      'This is the Error:',
+      new Error('Error message'),
+    ];
 
     it('should call the info method with the given arguments', () => {
       const infoSpy = jest.spyOn(logger, 'info');
@@ -92,7 +96,7 @@ describe('LoggerService', () => {
 
       service.error(...errorArgs);
 
-      expect(errorSpy).toHaveBeenCalledWith(...errorArgs);
+      expect(errorSpy).toHaveBeenCalledWith(...expectedErrorArgs);
     });
   });
 });
