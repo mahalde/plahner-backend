@@ -1,4 +1,4 @@
-import { asyncMap, isProdMode } from './utils';
+import { asyncMap, isProdMode, isTestMode } from './utils';
 
 describe('Utils', () => {
   describe('asyncMap', () => {
@@ -25,6 +25,24 @@ describe('Utils', () => {
       process.env.NODE_ENV = 'test';
 
       const result = isProdMode();
+
+      expect(result).toBeFalse();
+    });
+  });
+
+  describe('isTestMode', () => {
+    it('should return true if the process is in test mode', () => {
+      process.env.NODE_ENV = 'test';
+
+      const result = isTestMode();
+
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if the process is not in test mode', () => {
+      process.env.NODE_ENV = 'production';
+
+      const result = isTestMode();
 
       expect(result).toBeFalse();
     });

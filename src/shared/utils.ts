@@ -17,3 +17,10 @@ export async function asyncMap<T = any, R = any>(
 export function isProdMode(): boolean {
   return process.env.NODE_ENV === 'production';
 }
+
+/**
+ * Check whether we are in test mode or not
+ */
+export function isTestMode(): boolean {
+  return process.env.NODE_ENV === 'test';
+}

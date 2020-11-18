@@ -40,7 +40,7 @@ describe('LoggerService', () => {
   });
 
   describe('production mode', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       process.env.NODE_ENV = 'production';
 
       service = new LoggerService('TestService');
@@ -58,6 +58,39 @@ describe('LoggerService', () => {
 
     it('should not have a console transport on production mode', () => {
       expect(transportNames).not.toContain('console');
+    });
+  });
+
+  describe('test mode', () => {
+    beforeEach(() => {
+      process.env.NODE_ENV = 'test';
+
+      service = new LoggerService('TestService');
+      logger = (service as any).logger;
+    });
+
+    it('should log the name of the current test', () => {
+      const consoleSpy = jest.spyOn((console as any)._stdout, 'write');
+      service.info('test');
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(expect.getState().currentTestName),
+      );
+    });
+
+    it('should not log the name of the current test in development mode', () => {
+      process.env.NODE_ENV = 'development';
+
+      const consoleSpy = jest.spyOn((console as any)._stdout, 'write');
+      service.info('test');
+
+      expect(consoleSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(expect.getState().currentTestName),
+      );
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('TestService'),
+      );
     });
   });
 
