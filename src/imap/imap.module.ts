@@ -6,7 +6,10 @@ import { ImapService } from './services/imap/imap.service';
 const imapServiceFactory: Provider<ImapService> = {
   provide: ImapService,
   useFactory: (configService: ConfigService) => {
-    const keys = {
+    const keys: Record<
+      string,
+      StringConstructor | NumberConstructor | BooleanConstructor
+    > = {
       IMAP_USER: String,
       IMAP_PASSWORD: String,
       IMAP_HOST: String,

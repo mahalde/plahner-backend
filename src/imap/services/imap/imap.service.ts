@@ -20,6 +20,7 @@ export class ImapService implements OnModuleInit {
   }
 
   async connectToMailbox() {
+    const inboxName = 'INBOX';
     const allConfig: ImapSimpleOptions = {
       imap: {
         ...this.config,
@@ -32,9 +33,9 @@ export class ImapService implements OnModuleInit {
 
     try {
       this.imapClient = await connect(allConfig);
-      this.imapClient.openBox('INBOX');
+      await this.imapClient.openBox(inboxName);
       this.logger.info(
-        `Connected to IMAP mailbox on host '${this.config.host}'`,
+        `Connected to IMAP mailbox '${inboxName}' on host '${this.config.host}'`,
       );
       this.retries = 0;
       this.imapClient.on('error', this.onError);
