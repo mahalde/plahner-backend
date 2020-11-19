@@ -3,6 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { Config } from 'imap';
 import { ImapService } from './services/imap/imap.service';
 
+/**
+ * The dependency injection factory for the ImapService
+ *
+ * Allows for different configurations depending on development
+ * or production mode
+ *
+ * @param configService the injected ConfigService
+ */
 const imapServiceFactory = (configService: ConfigService) => {
   const keys: Record<
     string,
@@ -29,6 +37,10 @@ const imapServiceFactory = (configService: ConfigService) => {
   return new ImapService(config, maxRetries, retryTimeout);
 };
 
+/**
+ * The module which consists of all stuff regarding
+ * IMAP (Internet Message Access Protocol)
+ */
 @Module({
   providers: [
     {
