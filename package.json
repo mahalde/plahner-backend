@@ -24,7 +24,7 @@
     "test:e2e": "jest --config ./e2e/jest-e2e.json",
     "doc": "compodoc --tsconfig tsconfig.json src",
     "doc:serve": "compodoc --tsconfig tsconfig.json src --serve --open",
-    "doc:cov": "compodoc --tsconfig tsconfig.json src --coverageMinimumPerFile 85"
+    "doc:cov": "compodoc --tsconfig tsconfig.json src --coverageMinimumPerFile 85 --coverageTestShowOnlyFailed"
   },
   "dependencies": {
     "@nestjs/common": "^7.0.0",
