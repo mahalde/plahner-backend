@@ -40,7 +40,7 @@ describe('LoggerService', () => {
   });
 
   describe('production mode', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       process.env.NODE_ENV = 'production';
 
       service = new LoggerService('TestService');
@@ -61,6 +61,39 @@ describe('LoggerService', () => {
     });
   });
 
+  describe('test mode', () => {
+    beforeEach(() => {
+      process.env.NODE_ENV = 'test';
+
+      service = new LoggerService('TestService');
+      logger = (service as any).logger;
+    });
+
+    it('should log the name of the current test', () => {
+      const consoleSpy = jest.spyOn((console as any)._stdout, 'write');
+      service.info('test');
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(expect.getState().currentTestName),
+      );
+    });
+
+    it('should not log the name of the current test in development mode', () => {
+      process.env.NODE_ENV = 'development';
+
+      const consoleSpy = jest.spyOn((console as any)._stdout, 'write');
+      service.info('test');
+
+      expect(consoleSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(expect.getState().currentTestName),
+      );
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('TestService'),
+      );
+    });
+  });
+
   describe('logging methods', () => {
     const args: [string, string] = [
       'This is the message',
@@ -68,6 +101,10 @@ describe('LoggerService', () => {
     ];
     const errorArgs: [string, Error] = [
       'This is the Error',
+      new Error('Error message'),
+    ];
+    const expectedErrorArgs: [string, Error] = [
+      'This is the Error:',
       new Error('Error message'),
     ];
 
@@ -92,7 +129,7 @@ describe('LoggerService', () => {
 
       service.error(...errorArgs);
 
-      expect(errorSpy).toHaveBeenCalledWith(...errorArgs);
+      expect(errorSpy).toHaveBeenCalledWith(...expectedErrorArgs);
     });
   });
 });

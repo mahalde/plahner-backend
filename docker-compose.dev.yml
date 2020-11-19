@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  imap-server:
+    image: antespi/docker-imap-devel:latest
+    container_name: imap-server
+    ports:
+      - "25:25"
+      - "143:143"
+      - "993:993"
+    environment:
+      - MAILNAME=imap-test.org
+      - MAIL_ADDRESS=test@imap-test.org
+      - MAIL_PASS=test123

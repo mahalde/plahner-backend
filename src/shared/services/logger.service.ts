@@ -1,5 +1,5 @@
 import * as winston from 'winston';
-import { isProdMode } from '../utils';
+import { isProdMode, isTestMode } from '../utils';
 
 const { combine, timestamp, printf, colorize, prettyPrint } = winston.format;
 
@@ -19,9 +19,10 @@ export class LoggerService {
 
     const consoleFormat: winston.Logform.Format = printf(o => {
       const hasError = o.level === 'error';
-      return `${o.level.toUpperCase().padEnd(7)} ${o.timestamp} - [${
-        o.service
-      }] ${o.message} ${hasError ? '\n' + o.stack : ''}`;
+      const name = isTestMode() ? expect.getState().currentTestName : o.service;
+      return `${o.level.toUpperCase().padEnd(6)} [${process.pid}] ${
+        o.timestamp
+      } - [${name}] ${o.message} ${hasError ? '\n' + o.stack : ''}`;
     });
 
     if (!isProdMode()) {
@@ -46,6 +47,6 @@ export class LoggerService {
   }
 
   public error(message: any, error: Error) {
-    this.logger.error(message, error);
+    this.logger.error(`${message}:`, error);
   }
 }

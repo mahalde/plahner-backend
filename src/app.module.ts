@@ -5,6 +5,7 @@ import { VERSION_TOKEN } from './app.constants';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { isProdMode } from './shared/utils';
+import { ImapModule } from './imap/imap.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { isProdMode } from './shared/utils';
       isGlobal: true,
       envFilePath: isProdMode() ? '.env' : '.development.env',
     }),
+    ImapModule,
   ],
   controllers: [AppController],
   providers: [
