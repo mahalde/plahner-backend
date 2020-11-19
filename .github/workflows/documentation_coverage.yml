@@ -1,0 +1,28 @@
+name: Check documentation coverage
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check_coverage:
+    runs-on: ubuntu-latest
+    name: Check documentation coverage
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Backend
+        with:
+            fetch-depth: 0
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '>=12.18'
+
+      - name: Install node_modules
+        run: yarn
+
+      - name: Check documentation coverage
+        run: yarn doc:cov
+            
